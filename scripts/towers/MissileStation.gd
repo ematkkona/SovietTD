@@ -29,6 +29,9 @@ func create_projectile() -> Node2D:
 	# Set faster missile speed
 	bullet.speed = 600.0
 
+	# Mark as missile for explosion effect
+	bullet.is_missile = true
+
 	# Make missile larger and red
 	if bullet.sprite:
 		bullet.sprite.texture = create_placeholder_texture(Color.RED, Vector2(8, 8))
