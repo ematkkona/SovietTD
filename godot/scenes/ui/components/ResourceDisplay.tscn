@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://resourcedisplay001"]
+
+[node name="ResourceDisplay" type="HBoxContainer"]
+offset_right = 200.0
+offset_bottom = 40.0
+
+[node name="RublesLabel" type="Label" parent="."]
+layout_mode = 2
+text = "600₽"
+
+[node name="LivesLabel" type="Label" parent="."]
+layout_mode = 2
+text = "20♥"

@@ -1,0 +1,756 @@
+<# ============================================================================
+# COMPLETE SOVIET TOWER DEFENSE PROJECT PACKAGE
+# Ready for Godot 4.5-beta7 Import
+# ============================================================================
+
+# ===========================================
+# PROJECT SETTINGS
+# File: project.godot
+# ===========================================
+[application]
+
+config/name="Soviet Tower Defense"
+config/description="Defend the motherland from capitalist infiltrators!"
+run/main_scene="res://scenes/main/MainMenu.tscn"
+config/features=PackedStringArray("4.5", "Mobile")
+boot_splash/bg_color=Color(0.141176, 0.141176, 0.141176, 1)
+boot_splash/image="res://assets/sprites/ui/soviet_star.png"
+config/icon="res://assets/sprites/ui/app_icon.png"
+
+[autoload]
+
+GameManager="*res://scripts/autoloads/GameManager.gd"
+WaveManager="*res://scripts/autoloads/WaveManager.gd"
+EconomyManager="*res://scripts/autoloads/EconomyManager.gd"
+AudioManager="*res://scripts/autoloads/AudioManager.gd"
+SaveSystem="*res://scripts/autoloads/SaveSystem.gd"
+EventBus="*res://scripts/autoloads/EventBus.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/mode=3
+window/size/resizable=false
+window/stretch/mode="canvas_items"
+window/stretch/aspect="keep"
+window/handheld/orientation=1
+
+[input_devices]
+
+pointing/emulate_touch_from_mouse=true
+
+[rendering]
+
+renderer/rendering_method="mobile"
+textures/canvas_textures/default_texture_filter=0
+2d/use_pixel_snap=true
+
+[audio]
+
+buses/default_bus_layout="res://audio_bus_layout.tres"
+
+[layer_names_2d_physics]
+
+layer_1="Towers"
+layer_2="Enemies"
+layer_3="Projectiles"
+layer_4="Environment"
+
+[input]
+
+ui_touch={
+"deadzone": 0.5,
+"events": [Object(InputEventMouseButton,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"button_mask":1,"position":Vector2(0, 0),"global_position":Vector2(0, 0),"factor":1.0,"button_index":1,"canceled":false,"pressed":true,"double_click":false)]
+}
+
+ui_pause={
+"deadzone": 0.5,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":0,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":true,"keycode":4194305,"physical_keycode":4194305,"key_label":4194305,"unicode":0,"echo":false,"script":null)]
+}
+
+
+# ===========================================
+# MAIN MENU SCENE
+# File: scenes/main/MainMenu.tscn
+# ===========================================
+extends Control
+
+@onready var start_button = $VBoxContainer/StartButton
+@onready var settings_button = $VBoxContainer/SettingsButton  
+@onready var quit_button = $VBoxContainer/QuitButton
+@onready var title_label = $VBoxContainer/TitleLabel
+
+func _ready():
+    setup_ui()
+    AudioManager.play_music("menu")
+
+func setup_ui():
+    # Set up title
+    title_label.text = "SOVIET TOWER DEFENSE"
+    title_label.add_theme_font_size_override("font_size", 72)
+    
+    # Connect buttons
+    start_button.pressed.connect(_on_start_pressed)
+    settings_button.pressed.connect(_on_settings_pressed)
+    quit_button.pressed.connect(_on_quit_pressed)
+
+func _on_start_pressed():
+    AudioManager.play_sfx("button_click")
+    GameManager.start_game("Level01_Factory")
+
+func _on_settings_pressed():
+    # TODO: Open settings menu
+    pass
+
+func _on_quit_pressed():
+    get_tree().quit()
+
+
+# ===========================================
+# MAIN GAME SCENE
+# File: scenes/main/Main.tscn + Main.gd
+# ===========================================
+extends Node2D
+
+# Scene references
+@onready var game_world = $GameWorld
+@onready var level_container = $GameWorld/Level
+@onready var tower_container = $GameWorld/Level/TowerContainer
+@onready var enemy_container = $GameWorld/Level/EnemyContainer
+@onready var projectile_container = $GameWorld/Level/ProjectileContainer
+@onready var effects_container = $GameWorld/Level/EffectsContainer
+@onready var camera = $GameWorld/Camera
+@onready var ui = $UI/GameUI
+@onready var input_handler = $GameWorld/InputHandler
+
+# Game state
+var selected_tower_type: String = ""
+var tower_placement_mode: bool = false
+var current_level_data: Dictionary
+
+func _ready():
+    print("🚩 Main game scene loaded - For the motherland!")
+    
+    setup_game_scene()
+    connect_signals()
+    load_current_level()
+    
+    # Start background music
+    AudioManager.play_music("main_theme")
+
+func setup_game_scene():
+    """Initialize the main game scene"""
+    # Setup camera for mobile
+    setup_mobile_camera()
+    
+    # Initialize managers for this level
+    WaveManager.setup_for_level(level_container)
+    
+    # Setup input handling
+    input_handler.tower_placement_requested.connect(_on_tower_placement_requested)
+    input_handler.tower_selected.connect(_on_tower_selected)
+
+func setup_mobile_camera():
+    """Configure camera for mobile devices"""
+    camera.enabled = true
+    camera.current = true
+    camera.position_smoothing_enabled = true
+    camera.position_smoothing_speed = 5.0
+    
+    # Set initial zoom for mobile
+    camera.zoom = Vector2(0.8, 0.8)
+
+func connect_signals():
+    """Connect to manager signals"""
+    EventBus.tower_placed.connect(_on_tower_placed)
+    EventBus.ui_tower_selected.connect(_on_ui_tower_selected)
+    WaveManager.enemy_spawned.connect(_on_enemy_spawned)
+    GameManager.game_paused.connect(_on_game_paused)
+
+func load_current_level():
+    """Load the current level"""
+    var level_name = GameManager.current_level
+    if level_name == "":
+        level_name = "Level01_Factory"
+    
+    print("📍 Loading level: ", level_name)
+    
+    # For now, create a simple test level
+    create_test_level()
+
+func create_test_level():
+    """Create a basic test level with path"""
+    # Create simple path for enemies
+    var path = Path2D.new()
+    path.name = "EnemyPath"
+    
+    # Simple straight path
+    var curve = Curve2D.new()
+    curve.add_point(Vector2(0, 400))
+    curve.add_point(Vector2(1920, 400))
+    path.curve = curve
+    
+    level_container.add_child(path)
+    
+    # Set enemy spawn point
+    WaveManager.enemy_spawn_point = Vector2(0, 400)
+    WaveManager.enemy_path = path
+    
+    print("✅ Test level created with enemy path")
+
+# Tower placement system
+func _on_ui_tower_selected(tower_type: String):
+    """Player selected a tower type from UI"""
+    selected_tower_type = tower_type
+    tower_placement_mode = true
+    
+    # Change cursor or show placement preview
+    Input.set_default_cursor_shape(Input.CURSOR_CROSS)
+
+func _on_tower_placement_requested(tower_type: String, position: Vector2):
+    """Attempt to place a tower"""
+    if not tower_placement_mode or tower_type == "":
+        return
+    
+    # Check if position is valid (not on path, not too close to other towers)
+    if not is_valid_tower_position(position):
+        AudioManager.play_sfx("error")
+        return
+    
+    # Get tower cost
+    var tower_cost = get_tower_cost(tower_type)
+    
+    # Check if player can afford it
+    if not EconomyManager.can_afford(tower_cost):
+        AudioManager.play_sfx("error")
+        return
+    
+    # Spend money and place tower
+    if EconomyManager.spend_rubles(tower_cost):
+        place_tower(tower_type, position)
+        
+        # Exit placement mode
+        tower_placement_mode = false
+        selected_tower_type = ""
+        Input.set_default_cursor_shape(Input.CURSOR_ARROW)
+
+func place_tower(tower_type: String, position: Vector2):
+    """Actually place the tower"""
+    var tower_scene_path = "res://scenes/towers/" + tower_type + ".tscn"
+    
+    if not ResourceLoader.exists(tower_scene_path):
+        print("❌ Tower scene not found: ", tower_scene_path)
+        return
+    
+    var tower_scene = load(tower_scene_path)
+    var tower = tower_scene.instantiate()
+    
+    tower.global_position = position
+    tower_container.add_child(tower)
+    
+    EventBus.tower_placed.emit(tower, position)
+    AudioManager.play_voice("tower_built")  # "Excellent work, comrade!"
+    
+    print("🏗️ Placed ", tower_type, " at ", position)
+
+func is_valid_tower_position(position: Vector2) -> bool:
+    """Check if position is valid for tower placement"""
+    # Simple validation - just check it's within bounds
+    var level_bounds = Rect2(50, 50, 1820, 980)
+    
+    if not level_bounds.has_point(position):
+        return false
+    
+    # Check distance from path (simple check)
+    if abs(position.y - 400) < 60:  # Too close to enemy path
+        return false
+    
+    # Check distance from other towers
+    for tower in tower_container.get_children():
+        if position.distance_to(tower.global_position) < 80:
+            return false
+    
+    return true
+
+func get_tower_cost(tower_type: String) -> int:
+    """Get cost for tower type"""
+    var costs = {
+        "GuardTower": 100,
+        "PropagandaSpeaker": 150,
+        "BureaucraticOffice": 200,
+        "MissileStation": 300
+    }
+    return costs.get(tower_type, 100)
+
+# Event handlers
+func _on_tower_placed(tower: Node2D, position: Vector2):
+    """Tower was successfully placed"""
+    pass
+
+func _on_tower_selected(tower: Node2D):
+    """Player selected an existing tower"""
+    # Show upgrade panel
+    ui.show_tower_upgrade_panel(tower)
+
+func _on_enemy_spawned(enemy: Node2D):
+    """Enemy was spawned by wave manager"""
+    enemy_container.add_child(enemy)
+
+func _on_game_paused(paused: bool):
+    """Game pause state changed"""
+    get_tree().paused = paused
+
+
+# ===========================================
+# GAME UI SCENE
+# File: scenes/ui/GameUI.tscn + GameUI.gd
+# ===========================================
+extends Control
+
+# UI References
+@onready var top_bar = $TopBar
+@onready var rubles_label = $TopBar/ResourcesPanel/RublesCount
+@onready var lives_label = $TopBar/ResourcesPanel/LivesCount
+@onready var wave_label = $TopBar/WaveInfo/WaveLabel
+@onready var wave_timer_label = $TopBar/WaveInfo/NextWaveTimer
+
+@onready var side_panel = $SidePanel
+@onready var tower_buttons = $SidePanel/TowerButtons
+@onready var start_wave_btn = $BottomBar/StartWaveBtn
+@onready var speed_controls = $BottomBar/SpeedControls
+
+# Tower upgrade panel
+var upgrade_panel: Control
+var selected_tower: Node2D
+
+func _ready():
+    print("🎮 Game UI initialized")
+    
+    setup_ui_elements()
+    connect_signals()
+    update_ui_values()
+
+func setup_ui_elements():
+    """Initialize UI components"""
+    # Setup tower buttons
+    setup_tower_buttons()
+    
+    # Setup speed control buttons
+    setup_speed_controls()
+    
+    # Setup other UI elements
+    start_wave_btn.pressed.connect(_on_start_wave_pressed)
+
+func setup_tower_buttons():
+    """Create tower selection buttons"""
+    var tower_types = [
+        {"name": "Guard Tower", "type": "GuardTower", "cost": 100},
+        {"name": "Propaganda", "type": "PropagandaSpeaker", "cost": 150},
+        {"name": "Bureaucracy", "type": "BureaucraticOffice", "cost": 200},
+        {"name": "Missile", "type": "MissileStation", "cost": 300}
+    ]
+    
+    for tower_data in tower_types:
+        var button = Button.new()
+        button.text = tower_data.name + "\n" + str(tower_data.cost) + "₽"
+        button.custom_minimum_size = Vector2(120, 80)
+        
+        # Connect button to tower selection
+        button.pressed.connect(_on_tower_button_pressed.bind(tower_data.type))
+        
+        tower_buttons.add_child(button)
+
+func setup_speed_controls():
+    """Setup game speed control buttons"""
+    var speed_1x = speed_controls.get_child(0)
+    var speed_2x = speed_controls.get_child(1) 
+    var speed_4x = speed_controls.get_child(2)
+    
+    speed_1x.pressed.connect(_on_speed_changed.bind(1.0))
+    speed_2x.pressed.connect(_on_speed_changed.bind(2.0))
+    speed_4x.pressed.connect(_on_speed_changed.bind(4.0))
+
+func connect_signals():
+    """Connect to game manager signals"""
+    EconomyManager.rubles_changed.connect(_on_rubles_changed)
+    EconomyManager.lives_changed.connect(_on_lives_changed)
+    WaveManager.wave_started.connect(_on_wave_started)
+    GameManager.game_paused.connect(_on_game_paused)
+
+func update_ui_values():
+    """Update all UI values"""
+    _on_rubles_changed(EconomyManager.get_rubles())
+    _on_lives_changed(EconomyManager.get_lives())
+    update_wave_info()
+
+func update_wave_info():
+    """Update wave information display"""
+    var current_wave = WaveManager.get_current_wave()
+    var total_waves = WaveManager.get_total_waves()
+    
+    wave_label.text = "Wave " + str(current_wave) + "/" + str(total_waves)
+    
+    if WaveManager.is_wave_active():
+        wave_timer_label.text = "ACTIVE"
+        start_wave_btn.disabled = true
+    else:
+        wave_timer_label.text = "Ready"
+        start_wave_btn.disabled = false
+
+# Signal handlers
+func _on_rubles_changed(new_amount: int):
+    """Update rubles display"""
+    rubles_label.text = str(new_amount) + "₽"
+
+func _on_lives_changed(new_amount: int):
+    """Update lives display"""
+    lives_label.text = str(new_amount) + "♥"
+
+func _on_wave_started(wave_number: int):
+    """Wave started - update UI"""
+    update_wave_info()
+
+func _on_game_paused(paused: bool):
+    """Handle pause state"""
+    modulate = Color(0.7, 0.7, 0.7) if paused else Color.WHITE
+
+func _on_tower_button_pressed(tower_type: String):
+    """Tower button was pressed"""
+    EventBus.ui_tower_selected.emit(tower_type)
+    AudioManager.play_sfx("button_click")
+
+func _on_start_wave_pressed():
+    """Start next wave button pressed"""
+    WaveManager.start_next_wave()
+    AudioManager.play_sfx("button_click")
+
+func _on_speed_changed(speed: float):
+    """Game speed button pressed"""
+    GameManager.set_game_speed(speed)
+    AudioManager.play_sfx("button_click")
+
+func show_tower_upgrade_panel(tower: Node2D):
+    """Show upgrade panel for selected tower"""
+    selected_tower = tower
+    # TODO: Implement upgrade panel UI
+    print("🔧 Show upgrade panel for: ", tower.tower_name)
+
+
+# ===========================================
+# INPUT HANDLER
+# File: scripts/utilities/InputHandler.gd
+# ===========================================
+extends Node
+
+signal tower_placement_requested(tower_type: String, position: Vector2)
+signal tower_selected(tower: Node2D)
+signal camera_pan_requested(delta: Vector2)
+
+var is_dragging_camera = false
+var drag_start_position = Vector2.ZERO
+var selected_tower_type = ""
+
+func _input(event):
+    if event is InputEventScreenTouch:
+        handle_touch_input(event)
+    elif event is InputEventScreenDrag:
+        handle_drag_input(event)
+
+func handle_touch_input(event: InputEventScreenTouch):
+    """Handle touch/mouse input"""
+    if event.pressed:
+        var world_pos = get_global_mouse_position()
+        
+        if selected_tower_type != "":
+            # Try to place tower
+            tower_placement_requested.emit(selected_tower_type, world_pos)
+        else:
+            # Check for tower selection or start camera drag
+            var clicked_tower = get_tower_at_position(world_pos)
+            if clicked_tower:
+                tower_selected.emit(clicked_tower)
+            else:
+                is_dragging_camera = true
+                drag_start_position = event.position
+    else:
+        is_dragging_camera = false
+
+func handle_drag_input(event: InputEventScreenDrag):
+    """Handle touch drag for camera movement"""
+    if is_dragging_camera:
+        var drag_delta = event.position - drag_start_position
+        camera_pan_requested.emit(-drag_delta * 2.0)  # Invert for natural feel
+        drag_start_position = event.position
+
+func get_tower_at_position(position: Vector2) -> Node2D:
+    """Find tower at world position"""
+    var space_state = get_world_2d().direct_space_state
+    var query = PhysicsPointQueryParameters2D.new()
+    query.position = position
+    query.collision_mask = 1  # Tower layer
+    
+    var result = space_state.intersect_point(query)
+    if result.size() > 0:
+        return result[0].collider
+    
+    return null
+
+func set_tower_type(tower_type: String):
+    """Set currently selected tower type"""
+    selected_tower_type = tower_type
+
+
+# ===========================================
+# SAVE SYSTEM
+# File: scripts/autoloads/SaveSystem.gd 
+# ===========================================
+extends Node
+
+const SAVE_FILE = "user://savegame.save"
+
+# Save data structure
+var save_data = {
+    "player_progress": {},
+    "settings": {
+        "master_volume": 1.0,
+        "music_volume": 1.0,
+        "sfx_volume": 1.0
+    },
+    "high_scores": {}
+}
+
+func _ready():
+    print("💾 SaveSystem initialized")
+    load_game_data()
+
+func save_game_data():
+    """Save game data to file"""
+    var file = FileAccess.open(SAVE_FILE, FileAccess.WRITE)
+    if file:
+        file.store_string(JSON.stringify(save_data))
+        file.close()
+        print("💾 Game data saved")
+    else:
+        print("❌ Failed to save game data")
+
+func load_game_data():
+    """Load game data from file"""
+    if FileAccess.file_exists(SAVE_FILE):
+        var file = FileAccess.open(SAVE_FILE, FileAccess.READ)
+        if file:
+            var json_string = file.get_as_text()
+            file.close()
+            
+            var json = JSON.new()
+            var parse_result = json.parse(json_string)
+            
+            if parse_result == OK:
+                save_data = json.data
+                print("💾 Game data loaded")
+            else:
+                print("❌ Failed to parse save data")
+        else:
+            print("❌ Failed to open save file")
+    else:
+        print("📄 No save file found, using defaults")
+
+func save_level_progress(level_name: String, score: int):
+    """Save progress for completed level"""
+    if not save_data.has("player_progress"):
+        save_data["player_progress"] = {}
+    
+    var current_best = save_data.player_progress.get(level_name, 0)
+    if score > current_best:
+        save_data.player_progress[level_name] = score
+        save_game_data()
+
+func get_level_progress(level_name: String) -> int:
+    """Get best score for level"""
+    return save_data.player_progress.get(level_name, 0)
+
+
+# ===========================================
+# SIMPLE PROJECTILE SCENE
+# File: scenes/projectiles/Bullet.tscn + Bullet.gd
+# ===========================================
+extends Area2D
+class_name Projectile
+
+var target: Node2D
+var damage: int = 25
+var speed: float = 400.0
+var direction: Vector2
+
+@onready var sprite = $Sprite2D
+
+func _ready():
+    # Set collision for hitting enemies
+    collision_layer = 4  # Projectile layer
+    collision_mask = 2   # Enemy layer
+    
+    body_entered.connect(_on_body_entered)
+
+func setup_projectile(target_enemy: Node2D, projectile_damage: int):
+    """Initialize projectile with target and damage"""
+    target = target_enemy
+    damage = projectile_damage
+    
+    if target:
+        direction = (target.global_position - global_position).normalized()
+        rotation = direction.angle()
+
+func _physics_process(delta):
+    """Move projectile toward target"""
+    if target and is_instance_valid(target):
+        # Update direction to track moving target
+        direction = (target.global_position - global_position).normalized()
+        rotation = direction.angle()
+    
+    # Move forward
+    global_position += direction * speed * delta
+    
+    # Remove if off screen
+    var screen_rect = get_viewport().get_visible_rect()
+    if not screen_rect.has_point(global_position):
+        queue_free()
+
+func _on_body_entered(body: Node2D):
+    """Hit an enemy"""
+    if body.is_in_group("enemies") and body.has_method("take_damage"):
+        body.take_damage(damage, self)
+        
+        # Create hit effect
+        create_hit_effect()
+        
+        queue_free()
+
+func create_hit_effect():
+    """Create visual hit effect"""
+    # Simple hit effect - could be enhanced with particles
+    pass
+
+
+# ===========================================
+# SIMPLE EXPLOSION EFFECT
+# File: scenes/effects/Explosion.tscn + Explosion.gd
+# ===========================================
+extends Node2D
+
+@onready var sprite = $Sprite2D
+@onready var timer = $Timer
+
+func _ready():
+    # Simple explosion animation
+    timer.wait_time = 1.0
+    timer.one_shot = true
+    timer.timeout.connect(queue_free)
+    timer.start()
+    
+    # Simple scale animation
+    var tween = create_tween()
+    tween.parallel().tween_property(sprite, "scale", Vector2(2.0, 2.0), 0.5)
+    tween.parallel().tween_property(sprite, "modulate", Color.TRANSPARENT, 1.0)
+
+
+# ===========================================
+# FOLDER STRUCTURE CREATION SCRIPT
+# Save as: create_project_structure.gd (run once to create folders)
+# ===========================================
+extends EditorScript
+
+func _run():
+    """Create the complete folder structure"""
+    var folders = [
+        "scenes/main",
+        "scenes/levels", 
+        "scenes/towers",
+        "scenes/enemies",
+        "scenes/projectiles",
+        "scenes/effects",
+        "scenes/ui/components",
+        "scenes/ui/dialogs",
+        "scripts/autoloads",
+        "scripts/managers",
+        "scripts/towers",
+        "scripts/enemies", 
+        "scripts/ui",
+        "scripts/utilities",
+        "assets/sprites/towers",
+        "assets/sprites/enemies",
+        "assets/sprites/ui",
+        "assets/sprites/effects",
+        "assets/sprites/backgrounds",
+        "assets/audio/music",
+        "assets/audio/sfx", 
+        "assets/audio/voice",
+        "assets/fonts",
+        "assets/data/levels",
+        "assets/data/towers"
+    ]
+    
+    for folder in folders:
+        DirAccess.open("res://").make_dir_recursive(folder)
+    
+    print("🚩 Project structure created! For the motherland!")
+
+
+# ===========================================
+# EXPORT PRESETS (Android)  
+# File: export_presets.cfg
+# ===========================================
+[preset.0]
+
+name="Android"
+platform="Android"
+runnable=true
+advanced_options=false
+dedicated_server=false
+custom_features=""
+export_filter="all_resources"
+encryption_include_filters=""
+encryption_exclude_filters=""
+encrypt_pck=false
+encrypt_directory=false
+
+[preset.0.options]
+
+custom_template/debug=""
+custom_template/release=""
+gradle_build/use_gradle_build=false
+gradle_build/export_format=0
+gradle_build/min_sdk=""
+gradle_build/target_sdk=""
+architectures/armeabi-v7a=false
+architectures/arm64-v8a=true
+architectures/x86=false
+architectures/x86_64=false
+version/code=1
+version/name="1.0"
+package/unique_name="com.motherland.soviettowerdefense"
+package/name="Soviet Tower Defense"
+package/signed=true
+launcher_icons/main_192x192=""
+launcher_icons/adaptive_foreground_432x432=""
+launcher_icons/adaptive_background_432x432=""
+keystore/debug=""
+keystore/debug_user=""
+keystore/debug_password=""
+keystore/release=""
+keystore/release_user=""
+keystore/release_password=""
+one_click_deploy/clear_previous_install=false
+graphics/32_bits_framebuffer=true
+graphics/opengl_debug=false
+xr_features/xr_mode=0
+xr_features/hand_tracking=0
+xr_features/hand_tracking_frequency=0
+xr_features/passthrough=0
+screen/immersive_mode=true
+screen/support_small=true
+screen/support_normal=true
+screen/support_large=true
+screen/support_xlarge=true
+user_data_backup/allow=false
+command_line/extra_args=""
+apk_expansion/enable=false

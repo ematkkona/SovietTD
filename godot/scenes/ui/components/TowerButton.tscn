@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://towerbutton001"]
+
+[ext_resource type="Script" path="res://scripts/UI/TowerButton.gd" id="1"]
+
+[node name="TowerButton" type="Button"]
+custom_minimum_size = Vector2(100, 80)
+text = "Tower
+100₽"
+script = ExtResource("1")

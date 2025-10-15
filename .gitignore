@@ -1,0 +1,46 @@
+# Godot 4+ specific ignores
+.godot/
+*.import
+*.translation
+
+# Godot-specific
+export_presets.cfg
+export/
+*.tmp
+
+# Mono-specific ignores
+.mono/
+data_*/
+mono_crash.*.json
+
+# System/tool-specific ignores
+.DS_Store
+Thumbs.db
+*~
+*.swp
+*.swo
+*.log
+
+# IDE-specific
+.vscode/
+.idea/
+*.code-workspace
+
+# Build artifacts
+*.o
+*.so
+*.dylib
+*.dll
+*.exe
+*.app
+*.x86_64
+*.pck
+
+# Temporary files
+*.autosave
+*.backup
+*.bak
+
+# OS generated files
+.directory
+desktop.ini

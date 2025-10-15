@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://testlevel001"]
+
+[sub_resource type="Curve2D" id="Curve2D_1"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 100, 540, 0, 0, 0, 0, 1820, 540)
+}
+point_count = 2
+
+[node name="TestLevel" type="Node2D"]
+
+[node name="Path2D" type="Path2D" parent="."]
+curve = SubResource("Curve2D_1")
+
+[node name="SpawnPoint" type="Marker2D" parent="."]
+position = Vector2(100, 540)
+
+[node name="EndPoint" type="Marker2D" parent="."]
+position = Vector2(1820, 540)
