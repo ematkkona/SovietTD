@@ -9,8 +9,13 @@ func _ready():
 	max_health = 80
 	movement_speed = 60.0
 	rubles_reward = 15
-	
+
 	super()
-	
-	if sprite:
-		sprite.texture = PixelArtHelper.create_businessman_sprite()
+
+	# Setup animations
+	var walk_frames: Array[ImageTexture] = [
+		PixelArtHelper.create_businessman_walk_frame1(),
+		PixelArtHelper.create_businessman_walk_frame2()
+	]
+	var death_frames = PixelArtHelper.create_businessman_death_frames()
+	setup_animations(walk_frames, death_frames)

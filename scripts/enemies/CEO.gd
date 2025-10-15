@@ -9,9 +9,13 @@ func _ready():
 	max_health = 500
 	movement_speed = 30.0
 	rubles_reward = 100
-	
+
 	super()
-	
-	if sprite:
-		sprite.texture = PixelArtHelper.create_ceo_sprite()
-		# CEO is already bigger (24x32 vs 16x24), no extra scaling needed
+
+	# Setup animations
+	var walk_frames: Array[ImageTexture] = [
+		PixelArtHelper.create_ceo_walk_frame1(),
+		PixelArtHelper.create_ceo_walk_frame2()
+	]
+	var death_frames = PixelArtHelper.create_ceo_death_frames()
+	setup_animations(walk_frames, death_frames)

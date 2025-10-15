@@ -21,8 +21,9 @@ var slow_effects: Array[Dictionary] = []
 var path_follow: PathFollow2D
 var enemy_path: Path2D
 
-var sprite: Sprite2D
+var animated_sprite: AnimatedSprite2D
 var collision_shape: CollisionShape2D
+var is_dying: bool = false
 
 func _ready():
 	print("👔 ", enemy_name, " spawned!")
@@ -37,15 +38,35 @@ func _ready():
 	collision_mask = 0
 
 func setup_enemy_components():
-	sprite = Sprite2D.new()
-	sprite.texture = create_placeholder_texture(Color.BLUE, Vector2(16, 24))
-	add_child(sprite)
-	
+	animated_sprite = AnimatedSprite2D.new()
+	add_child(animated_sprite)
+
 	collision_shape = CollisionShape2D.new()
 	var rect_shape = RectangleShape2D.new()
 	rect_shape.size = Vector2(16, 24)
 	collision_shape.shape = rect_shape
 	add_child(collision_shape)
+
+# Helper function for child classes to setup their animations
+func setup_animations(walk_frames: Array[ImageTexture], death_frames: Array[ImageTexture]):
+	var sprite_frames = SpriteFrames.new()
+
+	# Setup walk animation
+	sprite_frames.add_animation("walk")
+	sprite_frames.set_animation_loop("walk", true)
+	sprite_frames.set_animation_speed("walk", 6.0)  # 6 FPS for walk cycle
+	for frame in walk_frames:
+		sprite_frames.add_frame("walk", frame)
+
+	# Setup death animation
+	sprite_frames.add_animation("death")
+	sprite_frames.set_animation_loop("death", false)
+	sprite_frames.set_animation_speed("death", 4.0)  # 4 FPS for death (slower, more dramatic)
+	for frame in death_frames:
+		sprite_frames.add_frame("death", frame)
+
+	animated_sprite.sprite_frames = sprite_frames
+	animated_sprite.play("walk")  # Start with walking animation
 
 func set_path(new_path: Path2D):
 	enemy_path = new_path
@@ -81,13 +102,29 @@ func take_damage(damage_amount: int, damage_source: Node2D = null):
 		die()
 
 func die():
+	if is_dying:
+		return  # Already dying, prevent double-trigger
+
+	is_dying = true
 	print("☠️ ", enemy_name, " eliminated!")
-	
+
 	EconomyManager.reward_kill(enemy_name)
-	
+
+	# Play death animation if available
+	if animated_sprite and animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation("death"):
+		animated_sprite.play("death")
+
+		# Wait for death animation to finish
+		await animated_sprite.animation_finished
+
+		# Fade out effect
+		var tween = create_tween()
+		tween.tween_property(animated_sprite, "modulate:a", 0.0, 0.3)
+		await tween.finished
+
 	if path_follow:
 		path_follow.queue_free()
-	
+
 	enemy_died.emit(self)
 	queue_free()
 
