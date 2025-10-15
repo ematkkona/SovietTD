@@ -108,7 +108,7 @@ func die():
 	is_dying = true
 	print("☠️ ", enemy_name, " eliminated!")
 
-	EconomyManager.reward_kill(enemy_name)
+	EconomyManager.reward_kill(self)
 
 	# Play death animation if available
 	if animated_sprite and animated_sprite.sprite_frames and animated_sprite.sprite_frames.has_animation("death"):

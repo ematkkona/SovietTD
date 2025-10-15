@@ -43,18 +43,14 @@ func lose_life():
 	if lives <= 0:
 		print("☠️ All lives lost!")
 
-func reward_kill(enemy_type: String):
-	var reward = get_kill_reward(enemy_type)
-	add_rubles(reward)
+func reward_kill(enemy: Node):
+	var reward = KILL_REWARD_BASE
 
-func get_kill_reward(enemy_type: String) -> int:
-	var rewards = {
-		"Businessman": 15,
-		"Tourist": 12,
-		"Spy": 25,
-		"CEO": 100
-	}
-	return rewards.get(enemy_type, KILL_REWARD_BASE)
+	# Try to get reward from enemy if it has rubles_reward property
+	if enemy and enemy.has("rubles_reward"):
+		reward = enemy.rubles_reward
+
+	add_rubles(reward)
 
 func get_rubles() -> int:
 	return rubles
