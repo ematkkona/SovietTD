@@ -111,15 +111,27 @@ addons/
 5. **Wave 5**: 6 Businessmen + 6 Tourists (12 enemies!)
 6. **Wave 6**: 1 CEO Boss (500 HP challenge)
 
-## 🎨 Asset Status
+## 🎨 Visual Style
 
-Currently using **placeholder graphics**:
-- Towers: Colored rectangles (gray, green, red, brown, orange-red)
-- Enemies: Blue rectangles
-- Projectiles: Yellow/red dots
+**Custom Pixel Art Sprites** created with procedural generation:
+
+### Towers
+- **Guard Tower** (32x32) - Soviet watchtower with brown wood, red roof, and red star
+- **Propaganda Speaker** (32x32) - Red loudspeaker on gray pole with yellow sound waves
+- **Bureaucratic Office** (32x32) - Gray building with dark windows and flying paperwork
+- **Missile Station** (40x40) - Red rocket on launch platform with yellow nose cone
+
+### Enemies
+- **Businessman** (16x24) - Dark blue suit, red tie, black hat, briefcase with $ sign
+- **Tourist** (16x24) - Yellow sun hat, bright Hawaiian shirt, camera, white sneakers
+- **CEO Boss** (24x32) - Gold crown, pinstripe suit, gold tie, cigar with smoke
+
+### Still Placeholder
+- Projectiles: Simple colored dots (yellow bullets, red missiles)
 - UI: Functional buttons with text labels
+- Effects: Basic visual feedback
 
-*Visual assets are planned for future development*
+*Future: Animated sprites, particle effects, and polished UI*
 
 ## 🔧 Development
 
@@ -132,9 +144,11 @@ Currently using **placeholder graphics**:
 ✅ Enemy pathfinding
 ✅ Collision detection
 ✅ Wave completion detection
+✅ **Pixel art sprites for towers and enemies**
 
 ### Planned Features
-- [ ] Visual assets (sprites, animations)
+- [x] Visual assets (basic pixel art sprites) ✨ **NEW!**
+- [ ] Sprite animations (attack, walk cycles)
 - [ ] Audio (music, sound effects, voice lines)
 - [ ] Tower upgrade system
 - [ ] Multiple levels
