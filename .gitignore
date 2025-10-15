@@ -44,3 +44,11 @@ Thumbs.db
 # OS generated files
 .directory
 desktop.ini
+
+# Development notes and session documentation
+# These are for AI development sessions and should not be in public repo
+*.md
+!README.md
+!LICENSE.md
+!CONTRIBUTING.md
+!CHANGELOG.md
