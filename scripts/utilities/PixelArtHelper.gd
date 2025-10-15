@@ -5,10 +5,17 @@
 # ===========================================
 class_name PixelArtHelper
 
-# Draw a pixel at x,y with color
+# Sprite scale factor - all sprites are drawn at 5x size for better visibility
+const SCALE = 5
+
+# Draw a pixel at x,y with color (draws SCALE x SCALE block)
 static func draw_pixel(image: Image, x: int, y: int, color: Color):
-	if x >= 0 and x < image.get_width() and y >= 0 and y < image.get_height():
-		image.set_pixel(x, y, color)
+	for px in range(SCALE):
+		for py in range(SCALE):
+			var sx = x * SCALE + px
+			var sy = y * SCALE + py
+			if sx >= 0 and sx < image.get_width() and sy >= 0 and sy < image.get_height():
+				image.set_pixel(sx, sy, color)
 
 # Draw a filled rectangle
 static func draw_rect(image: Image, rect: Rect2i, color: Color):
@@ -57,7 +64,7 @@ static func draw_circle(image: Image, center: Vector2i, radius: int, color: Colo
 
 # Create Guard Tower sprite (watchtower with red star)
 static func create_guard_tower_sprite() -> ImageTexture:
-	var image = Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	var image = Image.create(32 * SCALE, 32 * SCALE, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
 	
 	# Tower base (dark brown)
@@ -85,7 +92,7 @@ static func create_guard_tower_sprite() -> ImageTexture:
 
 # Create Propaganda Speaker sprite (speaker on pole)
 static func create_propaganda_speaker_sprite() -> ImageTexture:
-	var image = Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	var image = Image.create(32 * SCALE, 32 * SCALE, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
 	
 	# Pole (gray)
@@ -114,7 +121,7 @@ static func create_propaganda_speaker_sprite() -> ImageTexture:
 
 # Create Bureaucratic Office sprite (small building)
 static func create_bureaucratic_office_sprite() -> ImageTexture:
-	var image = Image.create(32, 32, false, Image.FORMAT_RGBA8)
+	var image = Image.create(32 * SCALE, 32 * SCALE, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
 	
 	# Building body (gray)
@@ -141,7 +148,7 @@ static func create_bureaucratic_office_sprite() -> ImageTexture:
 
 # Create Missile Station sprite (rocket launcher)
 static func create_missile_station_sprite() -> ImageTexture:
-	var image = Image.create(40, 40, false, Image.FORMAT_RGBA8)
+	var image = Image.create(40 * SCALE, 40 * SCALE, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
 	
 	# Base platform (dark gray)
@@ -178,7 +185,7 @@ static func create_missile_station_sprite() -> ImageTexture:
 
 # Create Businessman sprite (suit and briefcase)
 static func create_businessman_sprite() -> ImageTexture:
-	var image = Image.create(16, 24, false, Image.FORMAT_RGBA8)
+	var image = Image.create(16 * SCALE, 24 * SCALE, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
 	
 	# Head (skin tone)
@@ -212,7 +219,7 @@ static func create_businessman_sprite() -> ImageTexture:
 
 # Create Tourist sprite (casual clothes and camera)
 static func create_tourist_sprite() -> ImageTexture:
-	var image = Image.create(16, 24, false, Image.FORMAT_RGBA8)
+	var image = Image.create(16 * SCALE, 24 * SCALE, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
 	
 	# Head (skin tone)
@@ -247,7 +254,7 @@ static func create_tourist_sprite() -> ImageTexture:
 
 # Create Oligarch sprite (fancy suit with gold)
 static func create_oligarch_sprite() -> ImageTexture:
-	var image = Image.create(16, 24, false, Image.FORMAT_RGBA8)
+	var image = Image.create(16 * SCALE, 24 * SCALE, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
 	
 	# Head (skin tone)
@@ -286,7 +293,7 @@ static func create_oligarch_sprite() -> ImageTexture:
 
 # Create CEO Boss sprite (large and intimidating)
 static func create_ceo_sprite() -> ImageTexture:
-	var image = Image.create(24, 32, false, Image.FORMAT_RGBA8)
+	var image = Image.create(24 * SCALE, 32 * SCALE, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
 	
 	# Head (larger, angry)
