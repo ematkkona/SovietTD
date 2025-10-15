@@ -35,6 +35,10 @@ func setup_propaganda_system():
 func _broadcast_propaganda():
 	print("📢 PropagandaSpeaker broadcasting! Enemies in range: ", enemies_in_range.size())
 
+	# Only broadcast if there are enemies in range (efficient Soviet propaganda!)
+	if enemies_in_range.is_empty():
+		return
+
 	# Create expanding halo visual effect
 	create_propaganda_halo()
 

@@ -48,18 +48,32 @@ func _physics_process(delta):
 
 func _on_body_entered(body: Node2D):
 	if body.is_in_group("enemies") and body.has_method("take_damage"):
-		# Create explosion effect if this is a missile
-		if is_missile:
-			create_explosion_effect()
-
 		body.take_damage(damage, self)
+
+		# Create explosion effect if this is a missile (before freeing!)
+		if is_missile:
+			var impact_position = global_position
+			# Call deferred to ensure explosion starts after this frame
+			call_deferred("spawn_explosion_at", impact_position)
+
 		queue_free()
 
-func create_explosion_effect():
+func spawn_explosion_at(position: Vector2):
+	# This runs independently after bullet is freed
+	# We need to get the scene root since bullet is being freed
+	var scene_root = get_tree().root.get_child(get_tree().root.get_child_count() - 1)
+	if scene_root:
+		_create_explosion_at(scene_root, position)
+
+func _create_explosion_at(parent: Node, position: Vector2):
 	# Create explosion at impact point
 	var explosion = Node2D.new()
-	get_parent().add_child(explosion)
-	explosion.global_position = global_position
+	parent.add_child(explosion)
+	explosion.global_position = position
+
+	var tree = parent.get_tree()
+	if not tree:
+		return
 
 	# Create multiple expanding circles for explosion
 	for i in range(4):
@@ -78,7 +92,7 @@ func create_explosion_effect():
 		circle.add_child(circle_sprite)
 
 		# Animate explosion
-		var tween = create_tween()
+		var tween = explosion.create_tween()
 		tween.set_parallel(true)
 
 		# Expand rapidly then dissipate
@@ -90,7 +104,7 @@ func create_explosion_effect():
 		tween.tween_property(circle_sprite, "modulate:a", 0.0, 0.5).set_delay(0.1)
 
 		# Slight delay between rings
-		await get_tree().create_timer(0.05).timeout
+		await tree.create_timer(0.05).timeout
 
 	# Add some debris particles
 	for i in range(8):
@@ -106,14 +120,14 @@ func create_explosion_effect():
 		var distance = randf_range(30, 60)
 		var end_pos = Vector2(cos(angle), sin(angle)) * distance
 
-		var debris_tween = create_tween()
+		var debris_tween = explosion.create_tween()
 		debris_tween.set_parallel(true)
 		debris_tween.tween_property(debris, "position", end_pos, 0.5)
 		debris_tween.tween_property(debris, "rotation", randf_range(-TAU, TAU), 0.5)
 		debris_tween.tween_property(debris_sprite, "modulate:a", 0.0, 0.4).set_delay(0.1)
 
 	# Clean up explosion after animation
-	await get_tree().create_timer(0.7).timeout
+	await tree.create_timer(0.7).timeout
 	explosion.queue_free()
 
 func create_explosion_circle(radius: int, color: Color) -> ImageTexture:
