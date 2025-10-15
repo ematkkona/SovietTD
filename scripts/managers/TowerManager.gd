@@ -5,7 +5,9 @@
 # ===========================================
 extends Node
 
+@warning_ignore("unused_signal")
 signal tower_placement_started(tower_type: String)
+@warning_ignore("unused_signal")
 signal tower_placement_cancelled()
 
 var tower_definitions: Dictionary = {

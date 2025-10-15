@@ -6,6 +6,7 @@ extends Node
 
 signal game_started
 signal game_paused(paused: bool)
+@warning_ignore("unused_signal")
 signal level_completed(level_name: String)
 signal game_over
 

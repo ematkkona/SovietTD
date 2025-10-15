@@ -7,14 +7,19 @@ extends Node
 # Tower events
 signal tower_placed(tower: Node2D, position: Vector2)
 signal tower_sold(tower: Node2D, refund: int)
+@warning_ignore("unused_signal")
 signal tower_upgraded(tower: Node2D, new_level: int)
 
-# Enemy events  
+# Enemy events
+@warning_ignore("unused_signal")
 signal enemy_spawned(enemy: Node2D)
+@warning_ignore("unused_signal")
 signal enemy_killed(enemy: Node2D, killer: Node2D)
+@warning_ignore("unused_signal")
 signal enemy_reached_base(enemy: Node2D)
 
 # Game events
+@warning_ignore("unused_signal")
 signal wave_started(wave_number: int)
 signal wave_completed(wave_number: int)
 signal level_completed()
@@ -22,7 +27,9 @@ signal game_paused(paused: bool)
 
 # UI events
 signal ui_tower_selected(tower_type: String)
+@warning_ignore("unused_signal")
 signal ui_speed_changed(speed: float)
+@warning_ignore("unused_signal")
 signal ui_special_ability_used(ability_name: String)
 
 func _ready():
