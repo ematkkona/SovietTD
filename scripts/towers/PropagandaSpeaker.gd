@@ -20,7 +20,7 @@ func _ready():
 	super()  # Call parent _ready() first
 
 	if sprite:
-		sprite.texture = create_placeholder_texture(Color.RED, Vector2(32, 32))
+		sprite.texture = PixelArtHelper.create_propaganda_speaker_sprite()
 
 	setup_propaganda_system()
 	print("✅ PropagandaSpeaker fully initialized")

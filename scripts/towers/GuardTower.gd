@@ -14,6 +14,6 @@ func initialize_tower():
 func _ready():
 	super()  # Calls parent's _ready() which calls initialize_tower()
 
-	# Customize sprite color after parent setup
+	# Use pixel art sprite
 	if sprite:
-		sprite.texture = create_placeholder_texture(Color.DARK_GREEN, Vector2(32, 32))
+		sprite.texture = PixelArtHelper.create_guard_tower_sprite()

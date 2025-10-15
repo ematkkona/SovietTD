@@ -13,4 +13,4 @@ func _ready():
 	super()
 	
 	if sprite:
-		sprite.texture = create_placeholder_texture(Color.YELLOW, Vector2(16, 24))
+		sprite.texture = PixelArtHelper.create_tourist_sprite()

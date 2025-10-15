@@ -13,5 +13,5 @@ func _ready():
 	super()
 	
 	if sprite:
-		sprite.texture = create_placeholder_texture(Color.GOLD, Vector2(24, 32))
-		sprite.scale = Vector2(1.5, 1.5)
+		sprite.texture = PixelArtHelper.create_ceo_sprite()
+		# CEO is already bigger (24x32 vs 16x24), no extra scaling needed

@@ -20,7 +20,7 @@ func _ready():
 	super()  # Call parent _ready() first
 
 	if sprite:
-		sprite.texture = create_placeholder_texture(Color.BROWN, Vector2(32, 32))
+		sprite.texture = PixelArtHelper.create_bureaucratic_office_sprite()
 
 	setup_area_damage()
 	print("✅ BureaucraticOffice fully initialized")

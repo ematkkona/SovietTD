@@ -18,7 +18,7 @@ func _ready():
 	super()  # Call parent _ready() first
 
 	if sprite:
-		sprite.texture = create_placeholder_texture(Color.ORANGE_RED, Vector2(40, 40))
+		sprite.texture = PixelArtHelper.create_missile_station_sprite()
 	print("✅ MissileStation fully initialized")
 
 func create_projectile() -> Node2D:

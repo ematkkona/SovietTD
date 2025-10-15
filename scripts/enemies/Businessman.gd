@@ -13,4 +13,4 @@ func _ready():
 	super()
 	
 	if sprite:
-		sprite.texture = create_placeholder_texture(Color.DARK_BLUE, Vector2(16, 24))
+		sprite.texture = PixelArtHelper.create_businessman_sprite()
