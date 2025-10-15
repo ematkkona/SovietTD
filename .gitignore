@@ -2,6 +2,7 @@
 .godot/
 *.import
 *.translation
+/android/
 
 # Godot-specific
 export_presets.cfg
@@ -52,3 +53,8 @@ desktop.ini
 !LICENSE.md
 !CONTRIBUTING.md
 !CHANGELOG.md
+
+# Build/planning artifacts
+clean/
+dl/
+planning/
