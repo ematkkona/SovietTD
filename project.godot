@@ -28,6 +28,10 @@ LevelManager="*res://scripts/managers/LevelManager.gd"
 TowerManager="*res://scripts/managers/TowerManager.gd"
 SaveSystem="*res://scripts/autoloads/SaveSystem.gd"
 
+[debug]
+
+gdscript/warnings/unused_signal=0
+
 [dialogic]
 
 directories/dch_directory={}
@@ -88,10 +92,6 @@ dialogic_default_action={
 , Object(InputEventJoypadButton,"resource_local_to_scene":false,"resource_name":"","device":0,"button_index":0,"pressure":0.0,"pressed":false,"script":null)
 ]
 }
-
-[debug]
-
-gdscript/warnings/unused_signal=0
 
 [rendering]
 
