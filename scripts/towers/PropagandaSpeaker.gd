@@ -86,7 +86,7 @@ func create_ring_texture(radius: int, color: Color) -> ImageTexture:
 	var image = Image.create(size, size, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
 
-	var center = Vector2(size / 2, size / 2)
+	var center = Vector2(size / 2.0, size / 2.0)
 	var thickness = 2
 
 	# Draw ring (circle outline)

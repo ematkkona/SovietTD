@@ -56,10 +56,10 @@ func _on_ui_tower_selected(tower_type: String):
 	tower_placement_mode = true
 	print("🏗️ Selected tower: ", tower_type)
 
-func attempt_tower_placement(position: Vector2):
-	var validation = is_valid_tower_position(position)
+func attempt_tower_placement(click_pos: Vector2):
+	var validation = is_valid_tower_position(click_pos)
 	if not validation:
-		print("❌ Invalid tower position at ", position)
+		print("❌ Invalid tower position at ", click_pos)
 		# Don't clear selection on invalid placement - let user try again
 		return
 
@@ -71,36 +71,36 @@ func attempt_tower_placement(position: Vector2):
 		return
 
 	if EconomyManager.spend_rubles(tower_cost):
-		place_tower(selected_tower_type, position)
+		place_tower(selected_tower_type, click_pos)
 		# Clear selection after successful placement
 		tower_placement_mode = false
 		selected_tower_type = ""
 		print("✅ Tower placed successfully! Click button again to place another.")
 
-func place_tower(tower_type: String, position: Vector2):
+func place_tower(tower_type: String, tower_pos: Vector2):
 	var tower_scene_path = "res://scenes/towers/" + tower_type + ".tscn"
-	
+
 	if not ResourceLoader.exists(tower_scene_path):
 		print("❌ Tower scene not found")
 		return
-	
+
 	var tower_scene = load(tower_scene_path)
 	var tower = tower_scene.instantiate()
-	
-	tower.global_position = position
-	level_container.add_child(tower)
-	
-	print("🏗️ Placed ", tower_type, " at ", position)
 
-func is_valid_tower_position(position: Vector2) -> bool:
+	tower.global_position = tower_pos
+	level_container.add_child(tower)
+
+	print("🏗️ Placed ", tower_type, " at ", tower_pos)
+
+func is_valid_tower_position(check_pos: Vector2) -> bool:
 	# Check if within playable area
 	var level_bounds = Rect2(50, 50, 1820, 980)
-	if not level_bounds.has_point(position):
+	if not level_bounds.has_point(check_pos):
 		print("⚠️ Position outside level bounds")
 		return false
 
 	# Check if too close to enemy path (y=540, give 50px clearance instead of 100)
-	if abs(position.y - 540) < 50:
+	if abs(check_pos.y - 540) < 50:
 		print("⚠️ Too close to enemy path")
 		return false
 
@@ -108,7 +108,7 @@ func is_valid_tower_position(position: Vector2) -> bool:
 	var min_tower_distance = 40.0  # Minimum distance between towers
 	for child in level_container.get_children():
 		if child is BaseTower:
-			if child.global_position.distance_to(position) < min_tower_distance:
+			if child.global_position.distance_to(check_pos) < min_tower_distance:
 				print("⚠️ Too close to another tower")
 				return false
 

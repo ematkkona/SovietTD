@@ -123,12 +123,12 @@ func _spawn_enemy(enemy_type: String):
 func _spawn_next_enemy():
 	pass
 
-func _on_enemy_died(enemy: Node2D):
+func _on_enemy_died(_enemy: Node2D):
 	enemies_remaining -= 1
 	print("💀 Enemy died. Remaining: ", enemies_remaining, " / ", enemies_in_wave)
 	_check_wave_completion()
 
-func _on_enemy_reached_end(enemy: Node2D):
+func _on_enemy_reached_end(_enemy: Node2D):
 	enemies_remaining -= 1
 	print("🏁 Enemy reached end. Remaining: ", enemies_remaining, " / ", enemies_in_wave)
 	EconomyManager.lose_life()

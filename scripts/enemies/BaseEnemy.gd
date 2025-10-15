@@ -92,12 +92,12 @@ func move_along_path(delta):
 	if path_follow.progress_ratio >= 1.0:
 		reach_end()
 
-func take_damage(damage_amount: int, damage_source: Node2D = null):
+func take_damage(damage_amount: int, _damage_source: Node2D = null):
 	current_health -= damage_amount
 	current_health = max(current_health, 0)
-	
+
 	print("💥 ", enemy_name, " takes ", damage_amount, " damage")
-	
+
 	if current_health <= 0:
 		die()
 

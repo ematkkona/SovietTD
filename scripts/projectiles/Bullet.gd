@@ -58,18 +58,18 @@ func _on_body_entered(body: Node2D):
 
 		queue_free()
 
-func spawn_explosion_at(position: Vector2):
+func spawn_explosion_at(impact_pos: Vector2):
 	# This runs independently after bullet is freed
 	# We need to get the scene root since bullet is being freed
 	var scene_root = get_tree().root.get_child(get_tree().root.get_child_count() - 1)
 	if scene_root:
-		_create_explosion_at(scene_root, position)
+		_create_explosion_at(scene_root, impact_pos)
 
-func _create_explosion_at(parent: Node, position: Vector2):
+func _create_explosion_at(parent: Node, impact_pos: Vector2):
 	# Create explosion at impact point
 	var explosion = Node2D.new()
 	parent.add_child(explosion)
-	explosion.global_position = position
+	explosion.global_position = impact_pos
 
 	var tree = parent.get_tree()
 	if not tree:
@@ -135,7 +135,7 @@ func create_explosion_circle(radius: int, color: Color) -> ImageTexture:
 	var image = Image.create(size, size, false, Image.FORMAT_RGBA8)
 	image.fill(Color.TRANSPARENT)
 
-	var center = Vector2(size / 2, size / 2)
+	var center = Vector2(size / 2.0, size / 2.0)
 
 	# Draw filled circle
 	for x in range(size):
