@@ -36,6 +36,10 @@ Thumbs.db
 *.app
 *.x86_64
 *.pck
+*.apk
+
+# Environment-specific scripts
+launch_godot.sh
 
 # Temporary files
 *.autosave

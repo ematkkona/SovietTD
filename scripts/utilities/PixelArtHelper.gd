@@ -181,6 +181,138 @@ static func create_missile_station_sprite() -> ImageTexture:
 	
 	return ImageTexture.create_from_image(image)
 
+# Create Spy sprite (trench coat and sunglasses)
+static func create_spy_sprite() -> ImageTexture:
+	var image = Image.create(16 * SCALE, 24 * SCALE, false, Image.FORMAT_RGBA8)
+	image.fill(Color.TRANSPARENT)
+
+	# Head (skin tone)
+	draw_rect(image, Rect2i(6, 2, 4, 4), Color(0.9, 0.7, 0.6))
+
+	# Sunglasses (black)
+	draw_rect(image, Rect2i(5, 3, 6, 1), Color(0.1, 0.1, 0.1))
+
+	# Fedora hat (dark gray)
+	draw_rect(image, Rect2i(4, 0, 8, 2), Color(0.2, 0.2, 0.2))
+	draw_rect(image, Rect2i(5, 1, 6, 1), Color(0.3, 0.3, 0.3))
+
+	# Trench coat (dark gray)
+	draw_rect(image, Rect2i(4, 6, 8, 10), Color(0.25, 0.25, 0.3))
+
+	# Coat collar (darker)
+	draw_rect(image, Rect2i(4, 6, 2, 2), Color(0.15, 0.15, 0.2))
+	draw_rect(image, Rect2i(10, 6, 2, 2), Color(0.15, 0.15, 0.2))
+
+	# Legs (black pants)
+	draw_rect(image, Rect2i(6, 16, 2, 4), Color(0.1, 0.1, 0.1))
+	draw_rect(image, Rect2i(8, 16, 2, 4), Color(0.1, 0.1, 0.1))
+
+	# Shoes (black)
+	draw_rect(image, Rect2i(5, 20, 3, 4), Color(0.1, 0.1, 0.1))
+	draw_rect(image, Rect2i(8, 20, 3, 4), Color(0.1, 0.1, 0.1))
+
+	return ImageTexture.create_from_image(image)
+
+# Create Spy walking animation - Frame 1 (sneaky stride)
+static func create_spy_walk_frame1() -> ImageTexture:
+	var image = Image.create(16 * SCALE, 24 * SCALE, false, Image.FORMAT_RGBA8)
+	image.fill(Color.TRANSPARENT)
+
+	# Head (skin tone)
+	draw_rect(image, Rect2i(6, 2, 4, 4), Color(0.9, 0.7, 0.6))
+
+	# Sunglasses (black)
+	draw_rect(image, Rect2i(5, 3, 6, 1), Color(0.1, 0.1, 0.1))
+
+	# Fedora hat (dark gray)
+	draw_rect(image, Rect2i(4, 0, 8, 2), Color(0.2, 0.2, 0.2))
+	draw_rect(image, Rect2i(5, 1, 6, 1), Color(0.3, 0.3, 0.3))
+
+	# Trench coat (dark gray) - flapping slightly
+	draw_rect(image, Rect2i(4, 6, 8, 10), Color(0.25, 0.25, 0.3))
+	draw_rect(image, Rect2i(4, 6, 2, 2), Color(0.15, 0.15, 0.2))  # Collar
+	draw_rect(image, Rect2i(10, 6, 2, 2), Color(0.15, 0.15, 0.2))
+
+	# Legs (black pants) - left forward
+	draw_rect(image, Rect2i(5, 16, 2, 4), Color(0.1, 0.1, 0.1))
+	draw_rect(image, Rect2i(9, 16, 2, 4), Color(0.1, 0.1, 0.1))
+
+	# Shoes (black)
+	draw_rect(image, Rect2i(4, 20, 3, 4), Color(0.1, 0.1, 0.1))
+	draw_rect(image, Rect2i(9, 20, 3, 4), Color(0.1, 0.1, 0.1))
+
+	return ImageTexture.create_from_image(image)
+
+# Create Spy walking animation - Frame 2 (sneaky stride opposite)
+static func create_spy_walk_frame2() -> ImageTexture:
+	var image = Image.create(16 * SCALE, 24 * SCALE, false, Image.FORMAT_RGBA8)
+	image.fill(Color.TRANSPARENT)
+
+	# Head (skin tone)
+	draw_rect(image, Rect2i(6, 2, 4, 4), Color(0.9, 0.7, 0.6))
+
+	# Sunglasses (black)
+	draw_rect(image, Rect2i(5, 3, 6, 1), Color(0.1, 0.1, 0.1))
+
+	# Fedora hat (dark gray)
+	draw_rect(image, Rect2i(4, 0, 8, 2), Color(0.2, 0.2, 0.2))
+	draw_rect(image, Rect2i(5, 1, 6, 1), Color(0.3, 0.3, 0.3))
+
+	# Trench coat (dark gray)
+	draw_rect(image, Rect2i(4, 6, 8, 10), Color(0.25, 0.25, 0.3))
+	draw_rect(image, Rect2i(4, 6, 2, 2), Color(0.15, 0.15, 0.2))  # Collar
+	draw_rect(image, Rect2i(10, 6, 2, 2), Color(0.15, 0.15, 0.2))
+
+	# Legs (black pants) - right forward
+	draw_rect(image, Rect2i(9, 16, 2, 4), Color(0.1, 0.1, 0.1))
+	draw_rect(image, Rect2i(5, 16, 2, 4), Color(0.1, 0.1, 0.1))
+
+	# Shoes (black)
+	draw_rect(image, Rect2i(9, 20, 3, 4), Color(0.1, 0.1, 0.1))
+	draw_rect(image, Rect2i(4, 20, 3, 4), Color(0.1, 0.1, 0.1))
+
+	return ImageTexture.create_from_image(image)
+
+# Create Spy death animation frames (vanishes mysteriously)
+static func create_spy_death_frames() -> Array[ImageTexture]:
+	var frames: Array[ImageTexture] = []
+
+	# Frame 1: Staggering, hat tilting
+	var image1 = Image.create(16 * SCALE, 24 * SCALE, false, Image.FORMAT_RGBA8)
+	image1.fill(Color.TRANSPARENT)
+	draw_rect(image1, Rect2i(6, 3, 4, 4), Color(0.9, 0.7, 0.6))
+	draw_rect(image1, Rect2i(5, 4, 6, 1), Color(0.1, 0.1, 0.1))  # Sunglasses
+	draw_rect(image1, Rect2i(5, 1, 7, 2), Color(0.2, 0.2, 0.2))  # Hat tilted
+	draw_rect(image1, Rect2i(4, 7, 8, 9), Color(0.25, 0.25, 0.3))  # Coat
+	draw_rect(image1, Rect2i(6, 16, 2, 4), Color(0.1, 0.1, 0.1))  # Legs
+	draw_rect(image1, Rect2i(8, 16, 2, 4), Color(0.1, 0.1, 0.1))
+	frames.append(ImageTexture.create_from_image(image1))
+
+	# Frame 2: Falling, coat billowing
+	var image2 = Image.create(16 * SCALE, 24 * SCALE, false, Image.FORMAT_RGBA8)
+	image2.fill(Color.TRANSPARENT)
+	draw_rect(image2, Rect2i(8, 10, 4, 3), Color(0.9, 0.7, 0.6))  # Head sideways
+	draw_rect(image2, Rect2i(5, 9, 10, 8), Color(0.25, 0.25, 0.3))  # Coat spread out
+	draw_rect(image2, Rect2i(7, 11, 2, 1), Color(0.1, 0.1, 0.1))  # Sunglasses
+	# Hat falling
+	draw_rect(image2, Rect2i(2, 16, 4, 1), Color(0.2, 0.2, 0.2))
+	frames.append(ImageTexture.create_from_image(image2))
+
+	# Frame 3: On ground, mysterious
+	var image3 = Image.create(16 * SCALE, 24 * SCALE, false, Image.FORMAT_RGBA8)
+	image3.fill(Color.TRANSPARENT)
+	draw_rect(image3, Rect2i(3, 18, 10, 4), Color(0.25, 0.25, 0.3))  # Coat flat
+	draw_rect(image3, Rect2i(11, 19, 3, 2), Color(0.9, 0.7, 0.6))  # Head
+	draw_rect(image3, Rect2i(12, 19, 2, 1), Color(0.1, 0.1, 0.1))  # Sunglasses still on
+	# Hat fallen
+	draw_rect(image3, Rect2i(1, 17, 4, 1), Color(0.2, 0.2, 0.2))
+	frames.append(ImageTexture.create_from_image(image3))
+
+	# Frame 4: Fade (same as frame 3)
+	frames.append(ImageTexture.create_from_image(image3))
+
+	return frames
+
 # ========== ENEMY SPRITES ==========
 # Note: Each enemy has multiple animation functions:
 #   - create_X_sprite(): Static/idle sprite (legacy)
