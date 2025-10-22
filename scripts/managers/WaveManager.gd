@@ -33,17 +33,25 @@ func _ready():
 func load_wave_configuration():
 	wave_data = [
 		{"wave": 1, "enemies": [{"type": "Businessman", "count": 5, "interval": 2.0}]},
-		{"wave": 2, "enemies": [{"type": "Businessman", "count": 8, "interval": 1.5}]},
+		{"wave": 2, "enemies": [{"type": "Businessman", "count": 20, "interval": 1.2}]},
 		{"wave": 3, "enemies": [
-			{"type": "Businessman", "count": 5, "interval": 1.5},
-			{"type": "Tourist", "count": 3, "interval": 1.0}
+			{"type": "Businessman", "count": 15, "interval": 1.0},
+			{"type": "Tourist", "count": 10, "interval": 0.8}
 		]},
-		{"wave": 4, "enemies": [{"type": "Tourist", "count": 10, "interval": 1.2}]},
+		{"wave": 4, "enemies": [
+			{"type": "Tourist", "count": 25, "interval": 0.8},
+			{"type": "Spy", "count": 5, "interval": 1.5}
+		]},
 		{"wave": 5, "enemies": [
-			{"type": "Businessman", "count": 6, "interval": 1.0},
-			{"type": "Tourist", "count": 6, "interval": 1.0}
+			{"type": "Businessman", "count": 18, "interval": 0.7},
+			{"type": "Tourist", "count": 18, "interval": 0.7},
+			{"type": "Spy", "count": 8, "interval": 1.2}
 		]},
-		{"wave": 6, "enemies": [{"type": "CEO", "count": 1, "interval": 5.0}]}
+		{"wave": 6, "enemies": [
+			{"type": "CEO", "count": 3, "interval": 4.0},
+			{"type": "Spy", "count": 12, "interval": 0.9},
+			{"type": "Tourist", "count": 20, "interval": 0.6}
+		]}
 	]
 	total_waves = wave_data.size()
 
