@@ -1,5 +1,7 @@
 # 🚩 Soviet Tower Defense
 
+**Version 0.2 (Alpha)**
+
 A Soviet-themed tower defense game built with Godot 4.5, where you defend the glorious motherland against waves of capitalist invaders!
 
 ![Demo Screenshot 1](docs/screenshots/demo.png)
@@ -75,17 +77,25 @@ addons/
 5. Click **START WAVE** to begin
 
 ### Controls
-- **Mouse Click** - Select towers, place towers, start waves
+- **Tap/Click** - Select tower type from UI
+- **Tap on Map** - Show placement preview
+- **Tap Again** - Lock position
+- **Hold (0.6s)** - Confirm and build tower (with progress circle)
+- **Release Early** - Cancel placement
+- **Drag** - Reposition preview before locking
 - **UI Buttons** - Tower selection, wave start, game speed control
 
 ## 🎯 How to Play
 
-1. **Build Towers**: Click a tower button (costs rubles), then click a valid location on the map
-2. **Start Wave**: Click the START WAVE button when ready
-3. **Defend**: Towers automatically target and shoot enemies
-4. **Earn Money**: Gain rubles for each enemy eliminated
-5. **Survive**: Don't let too many enemies reach the end (you have 20 lives)
-6. **Progress**: Complete all 6 waves to achieve victory!
+1. **Select Tower**: Tap a tower button in the UI (costs rubles)
+2. **Position Tower**: Tap on the map to show placement preview (green = valid, red = invalid)
+3. **Lock Position**: Tap again to lock the tower location
+4. **Confirm Build**: Hold down for 0.6 seconds - watch the progress circle fill up!
+5. **Start Wave**: Tap the START WAVE button when ready
+6. **Defend**: Towers automatically target and shoot enemies
+7. **Earn Money**: Gain rubles for each enemy eliminated
+8. **Survive**: Don't let too many enemies reach the end (you have 20 lives)
+9. **Progress**: Complete all 6 waves to achieve victory!
 
 ### Strategy Tips
 - **Propaganda Speakers** slow enemies, giving other towers more time
@@ -147,17 +157,55 @@ addons/
 ✅ **Pixel art sprites for towers and enemies**
 
 ### Planned Features
-- [x] Visual assets (basic pixel art sprites) ✨ **NEW!**
+- [x] Visual assets (basic pixel art sprites)
+- [x] Mobile touch controls (hold-to-confirm placement) ✨ **v0.2**
 - [ ] Sprite animations (attack, walk cycles)
 - [ ] Audio (music, sound effects, voice lines)
 - [ ] Tower upgrade system
 - [ ] Multiple levels
 - [ ] Save/load system
 - [ ] Settings menu
-- [ ] Mobile touch controls
 - [ ] Particle effects
 - [ ] Victory/defeat screens
 - [ ] Localization (Russian translation)
+
+## 📋 Changelog
+
+### Version 0.2 (Alpha) - 2025-10-22
+**Mobile-First Touch Controls Update**
+
+**New Features:**
+- ✨ **Intuitive Tower Placement**: Preview appears at first tap location, no more dragging from corner
+- ⏱️ **Hold-to-Confirm Mechanic**: Hold for 0.6s with visual progress circle to confirm tower placement
+- 🎨 **Visual Feedback Effects**:
+  - Circular progress indicator that fills during hold
+  - Tower pulsing and range brightness effects while holding
+  - Satisfying burst animation on successful placement
+- 🎯 **Smart Cancellation**: Auto-cancels if finger drags away or releases early
+
+**Bug Fixes & Improvements:**
+- 🐛 Fixed duplicate resource state management (GameManager/EconomyManager desync)
+- 🐛 Fixed memory leaks in PropagandaSpeaker and BureaucraticOffice visual effects
+- 🐛 Fixed null reference bug in Bullet explosion spawning
+- 🐛 Fixed tower preview memory leak using immediate cleanup
+- 🐛 Resolved duplicate GameUI.gd files
+- 🔧 Centralized all cross-system signals through EventBus
+- 🧹 Added proper cleanup in BaseEnemy._exit_tree()
+- 📝 Renamed 'urange' to 'tower_range' for better code clarity
+
+**Code Quality:**
+- Major architecture refactoring for consistency
+- Improved signal architecture adherence to EventBus pattern
+- Better memory management throughout tower and enemy systems
+
+### Version 0.1 (Alpha) - 2025-10-18
+**Initial Release**
+- Core tower defense mechanics
+- 4 tower types, 4 enemy types
+- 6-wave progression system
+- Basic pixel art sprites
+- Economy and lives systems
+- Path-based enemy movement
 
 ## 📝 License
 

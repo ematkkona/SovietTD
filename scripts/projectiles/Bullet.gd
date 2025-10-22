@@ -61,7 +61,11 @@ func _on_body_entered(body: Node2D):
 func spawn_explosion_at(impact_pos: Vector2):
 	# This runs independently after bullet is freed
 	# We need to get the scene root since bullet is being freed
-	var scene_root = get_tree().root.get_child(get_tree().root.get_child_count() - 1)
+	var tree = get_tree()
+	if not tree or not tree.root:
+		return
+
+	var scene_root = tree.current_scene
 	if scene_root:
 		_create_explosion_at(scene_root, impact_pos)
 

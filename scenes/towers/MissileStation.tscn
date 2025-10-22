@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://missilestation001"]
+[gd_scene load_steps=3 format=3 uid="uid://bh7epbbrmbae"]
 
 [ext_resource type="PackedScene" uid="uid://basetower001" path="res://scenes/towers/BaseTower.tscn" id="1"]
-[ext_resource type="Script" path="res://scripts/towers/MissileStation.gd" id="2"]
+[ext_resource type="Script" uid="uid://by3a7l78ydmcl" path="res://scripts/towers/MissileStation.gd" id="2"]
 
 [node name="MissileStation" instance=ExtResource("1")]
 script = ExtResource("2")

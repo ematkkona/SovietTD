@@ -10,7 +10,7 @@ func initialize_tower():
 	tower_name = "Missile Station"
 	tower_cost = 300
 	damage = 100
-	urange = 250.0
+	tower_range = 250.0
 	fire_rate = 0.5
 
 func _ready():

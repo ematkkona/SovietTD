@@ -6,13 +6,14 @@ extends BaseTower
 
 var propaganda_timer: Timer
 var slow_effect_strength: float = 0.5
+var active_effects: Array[Node] = []
 
 func initialize_tower():
 	print("⚙️ PropagandaSpeaker.initialize_tower() called")
 	tower_name = "Propaganda Speaker"
 	tower_cost = 150
 	damage = 0
-	urange = 180.0
+	tower_range = 180.0
 	fire_rate = 0.5
 
 func _ready():
@@ -51,6 +52,7 @@ func create_propaganda_halo():
 	# Create a visual halo ring that expands outward
 	var halo = Node2D.new()
 	add_child(halo)
+	active_effects.append(halo)
 
 	# Create multiple concentric rings for effect
 	for i in range(3):
@@ -68,18 +70,23 @@ func create_propaganda_halo():
 
 		# Scale up from small to range size
 		var start_scale = 0.3 + i * 0.2
-		var end_scale = urange / 20.0  # Scale to match actual range
+		var end_scale = tower_range / 20.0  # Scale to match actual range
 		tween.tween_property(ring, "scale", Vector2(end_scale, end_scale), 1.5).from(Vector2(start_scale, start_scale))
 
 		# Fade out
 		tween.tween_property(ring_sprite, "modulate:a", 0.0, 1.5).from(0.6 - i * 0.15)
 
-		# Delay each ring slightly
-		await get_tree().create_timer(0.15).timeout
+		# Delay each ring slightly - check if still valid
+		if is_inside_tree():
+			await get_tree().create_timer(0.15).timeout
 
-	# Clean up after animation
-	await get_tree().create_timer(1.5).timeout
-	halo.queue_free()
+	# Clean up after animation - check if tower still exists
+	if is_inside_tree():
+		await get_tree().create_timer(1.5).timeout
+
+	if is_instance_valid(halo):
+		halo.queue_free()
+		active_effects.erase(halo)
 
 func create_ring_texture(radius: int, color: Color) -> ImageTexture:
 	var size = radius * 2 + 4
@@ -107,3 +114,10 @@ func create_ring_texture(radius: int, color: Color) -> ImageTexture:
 
 func create_projectile() -> Node2D:
 	return null
+
+func _exit_tree():
+	# Clean up any remaining visual effects when tower is destroyed
+	for effect in active_effects:
+		if is_instance_valid(effect):
+			effect.queue_free()
+	active_effects.clear()

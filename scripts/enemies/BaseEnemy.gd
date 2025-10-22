@@ -177,3 +177,8 @@ func create_placeholder_texture(color: Color, size: Vector2) -> ImageTexture:
 	var image = Image.create(int(size.x), int(size.y), false, Image.FORMAT_RGBA8)
 	image.fill(color)
 	return ImageTexture.create_from_image(image)
+
+func _exit_tree():
+	# Clean up path_follow if it still exists and is valid
+	if path_follow and is_instance_valid(path_follow):
+		path_follow.queue_free()

@@ -36,11 +36,11 @@ func update_display():
 	if not selected_tower:
 		return
 
-	if tower_info_label and selected_tower.has("tower_name"):
+	if tower_info_label and "tower_name" in selected_tower:
 		var info_text = selected_tower.tower_name + "\n"
 		info_text += "Level: " + str(selected_tower.tower_level) + "\n"
 		info_text += "Damage: " + str(selected_tower.damage) + "\n"
-		info_text += "Range: " + str(selected_tower.urange)
+		info_text += "Range: " + str(selected_tower.tower_range)
 		tower_info_label.text = info_text
 
 	if upgrade_cost_label:
@@ -72,7 +72,7 @@ func get_upgrade_cost() -> int:
 	return 150 * selected_tower.tower_level
 
 func get_sell_value() -> int:
-	if not selected_tower or not selected_tower.has("tower_cost"):
+	if not selected_tower or not "tower_cost" in selected_tower:
 		return 0
 
 	return int(selected_tower.tower_cost * 0.7)

@@ -47,7 +47,7 @@ func reward_kill(enemy: Node):
 	var reward = KILL_REWARD_BASE
 
 	# Try to get reward from enemy if it has rubles_reward property
-	if enemy and enemy.has("rubles_reward"):
+	if enemy and "rubles_reward" in enemy:
 		reward = enemy.rubles_reward
 
 	add_rubles(reward)

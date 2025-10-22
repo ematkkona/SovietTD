@@ -10,7 +10,7 @@ signal tower_upgraded(new_level: int)
 @export var tower_name: String = "Base Tower"
 @export var tower_cost: int = 100
 @export var damage: int = 25
-@export var urange: float = 200.0
+@export var tower_range: float = 200.0
 @export var fire_rate: float = 1.0
 @export var tower_level: int = 1
 @export var max_level: int = 3
@@ -20,18 +20,18 @@ var enemies_in_range: Array[Node2D] = []
 var can_fire: bool = true
 
 var fire_timer: Timer
-var urange_area: Area2D
+var tower_range_area: Area2D
 var sprite: Sprite2D
 var gun_barrel: Marker2D
 
 func _ready():
 	print("⚙️ BaseTower._ready() called")
 	initialize_tower()
-	print("🏗️ ", tower_name, " constructed! Range: ", urange, " Damage: ", damage)
+	print("🏗️ ", tower_name, " constructed! Range: ", tower_range, " Damage: ", damage)
 
 	setup_tower_components()
 	setup_targeting_system()
-	print("✅ Tower setup complete. Range area radius: ", urange_area.get_child(0).shape.radius if urange_area else 0)
+	print("✅ Tower setup complete. Range area radius: ", tower_range_area.get_child(0).shape.radius if tower_range_area else 0)
 
 # Override this in child towers to set stats
 func initialize_tower():
@@ -53,21 +53,21 @@ func setup_tower_components():
 	fire_timer.timeout.connect(_on_fire_timer_timeout)
 
 func setup_targeting_system():
-	urange_area = Area2D.new()
-	urange_area.name = "RangeArea"
-	add_child(urange_area)
+	tower_range_area = Area2D.new()
+	tower_range_area.name = "RangeArea"
+	add_child(tower_range_area)
 	
 	var collision_shape = CollisionShape2D.new()
 	var circle_shape = CircleShape2D.new()
-	circle_shape.radius = urange
+	circle_shape.radius = tower_range
 	collision_shape.shape = circle_shape
-	urange_area.add_child(collision_shape)
+	tower_range_area.add_child(collision_shape)
 	
-	urange_area.body_entered.connect(_on_enemy_entered_range)
-	urange_area.body_exited.connect(_on_enemy_exited_range)
+	tower_range_area.body_entered.connect(_on_enemy_entered_range)
+	tower_range_area.body_exited.connect(_on_enemy_exited_range)
 	
-	urange_area.collision_layer = 0
-	urange_area.collision_mask = 2
+	tower_range_area.collision_layer = 0
+	tower_range_area.collision_mask = 2
 
 func _process(_delta):
 	if current_target and is_instance_valid(current_target):
@@ -102,7 +102,7 @@ func get_first_enemy() -> Node2D:
 	return best_enemy if best_enemy else enemies_in_range[0]
 
 func is_target_in_range(target: Node2D) -> bool:
-	return global_position.distance_to(target.global_position) <= urange
+	return global_position.distance_to(target.global_position) <= tower_range
 
 func aim_at_target(target: Node2D):
 	if gun_barrel and target:

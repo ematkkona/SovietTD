@@ -8,7 +8,7 @@ func initialize_tower():
 	tower_name = "Guard Tower"
 	tower_cost = 100
 	damage = 25
-	urange = 200.0
+	tower_range = 200.0
 	fire_rate = 1.5
 
 func _ready():

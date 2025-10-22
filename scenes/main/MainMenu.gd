@@ -7,9 +7,14 @@ extends Control
 @onready var play_button = $MenuContainer/PlayButton
 @onready var settings_button = $MenuContainer/SettingsButton
 @onready var quit_button = $MenuContainer/QuitButton
+@onready var version_label = $VersionLabel
 
 func _ready():
 	print("🚩 Main Menu loaded")
+
+	# Set version from GameManager (single source of truth)
+	if version_label:
+		version_label.text = GameManager.VERSION_STRING
 
 	if play_button:
 		play_button.pressed.connect(_on_play_pressed)

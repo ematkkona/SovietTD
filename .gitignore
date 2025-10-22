@@ -57,8 +57,13 @@ desktop.ini
 !LICENSE.md
 !CONTRIBUTING.md
 !CHANGELOG.md
+!BUILD_DEPLOY_GUIDE.md
 
 # Build/planning artifacts
 clean/
 dl/
 planning/
+
+# Build & Deploy script artifacts
+latest_apk_link.txt
+download_qr.png

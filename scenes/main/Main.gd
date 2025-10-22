@@ -30,8 +30,8 @@ func setup_game_scene():
 	camera.enabled = true
 	#camera.current = true
 	camera.zoom = Vector2(0.8, 0.8)
-	
-	WaveManager.enemy_spawned.connect(_on_enemy_spawned)
+
+	EventBus.enemy_spawned.connect(_on_enemy_spawned)
 
 func load_current_level():
 	create_test_level()
@@ -75,16 +75,27 @@ func create_test_level():
 	print("✅ Test level created with complex S-curve path")
 
 func _input(event):
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if tower_placement_mode and placement_preview:
 			var world_pos = get_global_mouse_position()
-			placement_preview.handle_tap(world_pos)
+
+			if event.pressed:
+				# Mouse/touch pressed down
+				placement_preview.handle_tap(world_pos)
+				# If preview is locked, start hold timer
+				if placement_preview.get_locked_state():
+					placement_preview.start_hold()
+			else:
+				# Mouse/touch released
+				placement_preview.stop_hold()
 
 	# Update preview position on mouse move
 	if event is InputEventMouseMotion:
 		if tower_placement_mode and placement_preview:
 			var world_pos = get_global_mouse_position()
 			placement_preview.update_position(world_pos)
+			# Check if dragged away while holding (cancel hold)
+			placement_preview.check_hold_drag_distance(world_pos)
 
 func _on_ui_tower_selected(tower_type: String):
 	# Clean up any existing preview
@@ -207,8 +218,9 @@ func get_tower_range(tower_type: String) -> float:
 		if tower_temp.has_method("initialize_tower"):
 			tower_temp.initialize_tower()
 
-		var range_value = tower_temp.get("urange") if "urange" in tower_temp else 200.0
-		tower_temp.queue_free()
+		var range_value = tower_temp.get("tower_range") if "tower_range" in tower_temp else 200.0
+		# Use free() instead of queue_free() for immediate cleanup of temporary object
+		tower_temp.free()
 		return range_value
 	return 200.0
 
@@ -223,10 +235,12 @@ func get_tower_texture(tower_type: String) -> Texture2D:
 		for child in tower_temp.get_children():
 			if child is Sprite2D and child.texture:
 				var texture = child.texture
-				tower_temp.queue_free()
+				# Use free() instead of queue_free() for immediate cleanup of temporary object
+				tower_temp.free()
 				return texture
 
-		tower_temp.queue_free()
+		# Use free() instead of queue_free() for immediate cleanup of temporary object
+		tower_temp.free()
 
 	# Fallback to placeholder
 	return create_placeholder_texture(Color.GRAY, Vector2(32, 32))

@@ -4,9 +4,6 @@
 # ===========================================
 extends Node
 
-signal wave_started(wave_number: int)
-signal wave_completed(wave_number: int)
-signal enemy_spawned(enemy: Node2D)
 signal all_waves_completed
 
 var current_wave: int = 0
@@ -79,8 +76,8 @@ func start_next_wave():
 	
 	enemies_remaining = enemies_in_wave
 	wave_active = true
-	
-	wave_started.emit(current_wave)
+
+	EventBus.wave_started.emit(current_wave)
 	_start_spawning_wave(wave_config)
 
 func _start_spawning_wave(wave_config: Dictionary):
@@ -124,8 +121,8 @@ func _spawn_enemy(enemy_type: String):
 	
 	enemy.enemy_died.connect(_on_enemy_died)
 	enemy.enemy_reached_end.connect(_on_enemy_reached_end)
-	
-	enemy_spawned.emit(enemy)
+
+	EventBus.enemy_spawned.emit(enemy)
 	print("👔 Spawned ", enemy_type)
 
 func _spawn_next_enemy():

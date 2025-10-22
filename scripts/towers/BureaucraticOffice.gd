@@ -6,13 +6,14 @@
 extends BaseTower
 
 var area_damage_timer: Timer
+var active_effects: Array[Node] = []
 
 func initialize_tower():
 	print("⚙️ BureaucraticOffice.initialize_tower() called")
 	tower_name = "Bureaucratic Office"
 	tower_cost = 200
 	damage = 15
-	urange = 150.0
+	tower_range = 150.0
 	fire_rate = 0.8
 
 func _ready():
@@ -49,6 +50,7 @@ func launch_paperwork(target_enemy: Node2D):
 	var paper = Node2D.new()
 	get_parent().add_child(paper)  # Add to scene root so it can move independently
 	paper.global_position = global_position
+	active_effects.append(paper)
 
 	# Create paper sprite (small white rectangle)
 	var paper_sprite = Sprite2D.new()
@@ -73,9 +75,13 @@ func launch_paperwork(target_enemy: Node2D):
 	# Fade out on arrival
 	tween.tween_property(paper_sprite, "modulate:a", 0.0, duration * 0.5).set_delay(duration * 0.5)
 
-	# Clean up
-	await tween.finished
-	paper.queue_free()
+	# Clean up - check if tower still exists
+	if is_inside_tree():
+		await tween.finished
+
+	if is_instance_valid(paper):
+		paper.queue_free()
+		active_effects.erase(paper)
 
 func create_paper_texture() -> ImageTexture:
 	var size = 12
@@ -100,3 +106,10 @@ func create_paper_texture() -> ImageTexture:
 
 func create_projectile() -> Node2D:
 	return null
+
+func _exit_tree():
+	# Clean up any remaining visual effects when tower is destroyed
+	for effect in active_effects:
+		if is_instance_valid(effect):
+			effect.queue_free()
+	active_effects.clear()
