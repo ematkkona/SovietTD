@@ -6,9 +6,9 @@ extends Node
 
 # Version information (single source of truth)
 const VERSION_MAJOR: int = 0
-const VERSION_MINOR: int = 2
+const VERSION_MINOR: int = 21
 const VERSION_STAGE: String = "Alpha"
-const VERSION_STRING: String = "v0.2 (Alpha)"
+const VERSION_STRING: String = "v0.21 (Alpha)"
 
 signal game_started
 @warning_ignore("unused_signal")

@@ -82,9 +82,15 @@ func _input(event):
 			if event.pressed:
 				# Mouse/touch pressed down
 				placement_preview.handle_tap(world_pos)
-				# If preview is locked, start hold timer
+				# If preview is locked, check affordability before starting hold timer
 				if placement_preview.get_locked_state():
-					placement_preview.start_hold()
+					var tower_cost = TowerManager.get_tower_cost(selected_tower_type)
+					if EconomyManager.can_afford(tower_cost):
+						placement_preview.start_hold()
+					else:
+						# Flash the preview to indicate insufficient funds
+						placement_preview.flash_invalid()
+						print("❌ Cannot afford tower (need ", tower_cost, "₽, have ", EconomyManager.get_rubles(), "₽)")
 			else:
 				# Mouse/touch released
 				placement_preview.stop_hold()
@@ -168,21 +174,12 @@ func is_valid_tower_position(check_pos: Vector2) -> bool:
 
 	return true
 
-func get_tower_cost(tower_type: String) -> int:
-	var costs = {
-		"GuardTower": 100,
-		"PropagandaSpeaker": 150,
-		"BureaucraticOffice": 200,
-		"MissileStation": 300
-	}
-	return costs.get(tower_type, 100)
-
 func _on_enemy_spawned(enemy: Node2D):
 	level_container.add_child(enemy)
 
 func _on_placement_confirmed(tower_pos: Vector2):
 	# Check affordability one final time
-	var tower_cost = get_tower_cost(selected_tower_type)
+	var tower_cost = TowerManager.get_tower_cost(selected_tower_type)
 
 	if not EconomyManager.can_afford(tower_cost):
 		print("❌ Cannot afford tower (need ", tower_cost, "₽)")
