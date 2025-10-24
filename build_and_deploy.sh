@@ -20,8 +20,29 @@ JAVA_HOME="/usr/lib/jvm/java-17-openjdk"  # Java 17 for Android export
 GODOT_FLATPAK="flatpak run --env=JAVA_HOME=$JAVA_HOME org.godotengine.Godot"
 GDRIVE_FOLDER_ID=""  # Set this to your Google Drive folder ID (leave empty for root)
 
-# Build mode: "debug" (no signing) or "release" (requires keystore)
-BUILD_MODE="${1:-debug}"  # Default to debug, pass "release" as first argument
+# Parse command line arguments
+SKIP_BUILD=false
+BUILD_MODE="debug"  # Default to debug
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --skip-build)
+            SKIP_BUILD=true
+            shift
+            ;;
+        release|debug)
+            BUILD_MODE=$1
+            shift
+            ;;
+        *)
+            echo -e "${RED}Unknown argument: $1${NC}"
+            echo "Usage: $0 [debug|release] [--skip-build]"
+            echo "  debug|release : Build mode (default: debug)"
+            echo "  --skip-build  : Skip Android build, only deploy existing APK"
+            exit 1
+            ;;
+    esac
+done
 
 # Get version from GameManager.gd
 get_version() {
@@ -35,48 +56,67 @@ APK_PATH="$PROJECT_DIR/$APK_NAME"
 echo -e "${BLUE}================================================${NC}"
 echo -e "${BLUE}  Soviet Tower Defense - Build & Deploy${NC}"
 echo -e "${BLUE}  Version: ${VERSION} (${BUILD_MODE})${NC}"
+if [ "$SKIP_BUILD" = true ]; then
+    echo -e "${BLUE}  Mode: Deploy only (skipping build)${NC}"
+fi
 echo -e "${BLUE}================================================${NC}"
 echo ""
 
-# Step 1: Build APK with Godot
-echo -e "${YELLOW}[1/4] Building APK with Godot...${NC}"
-cd "$PROJECT_DIR"
+# Step 1: Build APK with Godot (or skip)
+if [ "$SKIP_BUILD" = true ]; then
+    echo -e "${YELLOW}[1/4] Skipping build (--skip-build flag)${NC}"
 
-# Check if Godot flatpak is available
-if ! flatpak list | grep -q "org.godotengine.Godot"; then
-    echo -e "${RED}❌ Godot flatpak not found!${NC}"
-    echo -e "${YELLOW}Install with: flatpak install flathub org.godotengine.Godot${NC}"
-    exit 1
-fi
+    # Check if APK exists
+    if [ ! -f "$APK_PATH" ]; then
+        echo -e "${RED}❌ APK not found: $APK_PATH${NC}"
+        echo -e "${YELLOW}Available APKs:${NC}"
+        ls -lh "$PROJECT_DIR"/*.apk 2>/dev/null || echo "  (none found)"
+        exit 1
+    fi
 
-# Check if Java 17 is available
-if [ ! -d "$JAVA_HOME" ]; then
-    echo -e "${RED}❌ Java 17 not found at $JAVA_HOME!${NC}"
-    echo -e "${YELLOW}Install with: sudo pacman -S jdk17-openjdk${NC}"
-    exit 1
-fi
-
-# Export APK (headless mode with Java 17)
-echo -e "${BLUE}Using Java: $JAVA_HOME${NC}"
-if [ "$BUILD_MODE" = "release" ]; then
-    echo -e "${BLUE}Building RELEASE APK (signed)${NC}"
-    EXPORT_CMD="--export-release"
-else
-    echo -e "${BLUE}Building DEBUG APK (unsigned)${NC}"
-    EXPORT_CMD="--export-debug"
-fi
-
-$GODOT_FLATPAK --headless $EXPORT_CMD "$EXPORT_PRESET" "$APK_PATH" 2>&1 | grep -E "(Exporting|Writing|ERROR|export)" || true
-
-if [ -f "$APK_PATH" ]; then
     APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
-    echo -e "${GREEN}✅ APK built successfully: $APK_NAME ($APK_SIZE)${NC}"
+    echo -e "${GREEN}✅ Using existing APK: $APK_NAME ($APK_SIZE)${NC}"
+    echo ""
 else
-    echo -e "${RED}❌ APK build failed!${NC}"
-    exit 1
-fi
+    echo -e "${YELLOW}[1/4] Building APK with Godot...${NC}"
+    cd "$PROJECT_DIR"
 
-echo ""
+    # Check if Godot flatpak is available
+    if ! flatpak list | grep -q "org.godotengine.Godot"; then
+        echo -e "${RED}❌ Godot flatpak not found!${NC}"
+        echo -e "${YELLOW}Install with: flatpak install flathub org.godotengine.Godot${NC}"
+        exit 1
+    fi
+
+    # Check if Java 17 is available
+    if [ ! -d "$JAVA_HOME" ]; then
+        echo -e "${RED}❌ Java 17 not found at $JAVA_HOME!${NC}"
+        echo -e "${YELLOW}Install with: sudo pacman -S jdk17-openjdk${NC}"
+        exit 1
+    fi
+
+    # Export APK (headless mode with Java 17)
+    echo -e "${BLUE}Using Java: $JAVA_HOME${NC}"
+    if [ "$BUILD_MODE" = "release" ]; then
+        echo -e "${BLUE}Building RELEASE APK (signed)${NC}"
+        EXPORT_CMD="--export-release"
+    else
+        echo -e "${BLUE}Building DEBUG APK (unsigned)${NC}"
+        EXPORT_CMD="--export-debug"
+    fi
+
+    $GODOT_FLATPAK --headless $EXPORT_CMD "$EXPORT_PRESET" "$APK_PATH" 2>&1 | grep -E "(Exporting|Writing|ERROR|export)" || true
+
+    if [ -f "$APK_PATH" ]; then
+        APK_SIZE=$(du -h "$APK_PATH" | cut -f1)
+        echo -e "${GREEN}✅ APK built successfully: $APK_NAME ($APK_SIZE)${NC}"
+    else
+        echo -e "${RED}❌ APK build failed!${NC}"
+        exit 1
+    fi
+
+    echo ""
+fi
 
 # Step 2: Upload to Google Drive
 echo -e "${YELLOW}[2/4] Uploading to Google Drive...${NC}"

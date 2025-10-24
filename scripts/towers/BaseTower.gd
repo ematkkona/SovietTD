@@ -116,7 +116,10 @@ func try_fire_at_target():
 func fire_projectile():
 	can_fire = false
 	fire_timer.start()
-	
+
+	# Play shooting sound
+	AudioManager.play_sfx_resource(AudioRegistry.SFX_TOWER_SHOOT)
+
 	var projectile = create_projectile()
 	if projectile:
 		get_tree().current_scene.add_child(projectile)

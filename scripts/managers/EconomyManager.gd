@@ -19,6 +19,10 @@ func _ready():
 func add_rubles(amount: int):
 	rubles += amount
 	print("💰 +", amount, " rubles (Total: ", rubles, ")")
+
+	# Play coin collect sound (quieter since it plays frequently)
+	AudioManager.play_sfx_resource(AudioRegistry.SFX_COIN_COLLECT, 0.5)
+
 	rubles_changed.emit(rubles)
 
 func spend_rubles(amount: int) -> bool:
@@ -29,6 +33,10 @@ func spend_rubles(amount: int) -> bool:
 		return true
 	else:
 		print("❌ Not enough rubles!")
+
+		# Play error sound for insufficient funds
+		AudioManager.play_sfx_resource(AudioRegistry.SFX_NOT_ENOUGH_FUNDS)
+
 		not_enough_rubles.emit(amount, rubles)
 		return false
 

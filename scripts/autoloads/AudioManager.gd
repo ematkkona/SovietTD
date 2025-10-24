@@ -32,7 +32,25 @@ func setup_audio_players():
 		add_child(player)
 		sfx_players.append(player)
 
+## RECOMMENDED: Play music using preloaded AudioStream resource
+## Use with AudioRegistry constants for compile-time validation
+func play_music_resource(stream: AudioStream, loop: bool = true):
+	if not stream:
+		push_warning("AudioManager: Attempted to play null music stream")
+		return
+
+	music_player.stream = stream
+	music_player.volume_db = linear_to_db(music_volume * master_volume)
+	if stream is AudioStreamOggVorbis or stream is AudioStreamMP3:
+		stream.loop = loop
+	music_player.play()
+	current_music_track = stream.resource_path
+	print("🎵 Playing music: ", current_music_track)
+
+## DEPRECATED: Use play_music_resource() with AudioRegistry constants instead
 func play_music(track_path: String, loop: bool = true):
+	push_warning("AudioManager.play_music() with string path is deprecated - use play_music_resource() with AudioRegistry constants")
+
 	if not ResourceLoader.exists(track_path):
 		print("❌ Music track not found: ", track_path)
 		return
@@ -51,7 +69,26 @@ func stop_music():
 	music_player.stop()
 	current_music_track = ""
 
+## RECOMMENDED: Play SFX using preloaded AudioStream resource
+## Use with AudioRegistry constants for compile-time validation
+func play_sfx_resource(stream: AudioStream, volume_modifier: float = 1.0):
+	if not stream:
+		push_warning("AudioManager: Attempted to play null AudioStream")
+		return
+
+	var available_player = get_available_sfx_player()
+	if not available_player:
+		return
+
+	available_player.stream = stream
+	available_player.volume_db = linear_to_db(sfx_volume * master_volume * volume_modifier)
+	available_player.play()
+
+## DEPRECATED: Use play_sfx_resource() with AudioRegistry constants instead
+## This method kept for backward compatibility only
 func play_sfx(sfx_path: String, volume_modifier: float = 1.0):
+	push_warning("AudioManager.play_sfx() with string path is deprecated - use play_sfx_resource() with AudioRegistry constants")
+
 	if not ResourceLoader.exists(sfx_path):
 		print("❌ SFX not found: ", sfx_path)
 		return

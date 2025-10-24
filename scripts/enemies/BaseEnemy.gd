@@ -108,6 +108,9 @@ func die():
 	is_dying = true
 	print("☠️ ", enemy_name, " eliminated!")
 
+	# Play death sound
+	AudioManager.play_sfx_resource(AudioRegistry.SFX_ENEMY_DEATH)
+
 	EconomyManager.reward_kill(self)
 
 	# Play death animation if available
