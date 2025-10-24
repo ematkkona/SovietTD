@@ -62,7 +62,7 @@ func _on_wave_completed(wave_number: int):
 	print("🔊 Audio: Wave ", wave_number, " completed")
 	AudioManager.play_sfx_resource(AudioRegistry.SFX_WAVE_COMPLETE)
 
-func _on_tower_placed(tower: Node2D, position: Vector2):
+func _on_tower_placed(_tower: Node2D, position: Vector2):
 	"""Play tower placement sound"""
 	print("🔊 Audio: Tower placed at ", position)
 	AudioManager.play_sfx_resource(AudioRegistry.SFX_TOWER_PLACE)
@@ -72,13 +72,13 @@ func _on_tower_placed(tower: Node2D, position: Vector2):
 	#     await get_tree().create_timer(0.3).timeout
 	#     AudioManager.play_sfx_resource(AudioRegistry.VOICE_TOWER_BUILT, 0.7)
 
-func _on_tower_upgraded(tower: Node2D, new_level: int):
+func _on_tower_upgraded(_tower: Node2D, new_level: int):
 	"""Play tower upgrade sound"""
 	print("🔊 Audio: Tower upgraded to level ", new_level)
 	# TODO: Implement when SFX_TOWER_UPGRADE is created
 	# AudioManager.play_sfx_resource(AudioRegistry.SFX_TOWER_UPGRADE)
 
-func _on_tower_sold(tower: Node2D, refund_amount: int):
+func _on_tower_sold(_tower: Node2D, refund_amount: int):
 	"""Play tower sell sound"""
 	print("🔊 Audio: Tower sold for ", refund_amount, " rubles")
 	# TODO: Implement when SFX_TOWER_SELL is created
